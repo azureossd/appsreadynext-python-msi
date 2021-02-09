@@ -24,5 +24,5 @@
 7. Request the site to reproduce the issue, check logs for more information.
 
 ## Not able to find Environment Credentials
-1. Checking logs you will see that app is not able to find the environment credentials.
+1. Checking logs you will see that app is not able to find the environment credentials with the following error: *EnvironmentCredential.get_token failed: EnvironmentCredential authentication unavailable. Environment variables are not fully configured*
 2. In order to fix this issue, you need to replace DefaultAzureCredential with ManagedIdentityCredential, this change is already made in **azureossd/appsreadynext-msi:02**, so go to Container Settings and pull from this image **azureossd/appsreadynext-msi:02**
