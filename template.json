@@ -120,7 +120,6 @@
                         "HOST": "[concat(toLower(parameters('dbServerName')), '.mysql.database.azure.com')]",
                         "USER":"[concat(toLower(parameters('DbAdministratorLogin')), '@', parameters('dbServerName'))]",
                         "DATABASE":"[variables('database_name')]",
-                        "CLIENT_ID":"your_userassigned_id",
                         "WEBSITES_ENABLE_APP_SERVICE_STORAGE":"false"
                     }
                 }
