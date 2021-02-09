@@ -1,0 +1,130 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+    "parameters": {
+		"dbServerName": {
+            "type": "string"
+        },
+        "dbAdministratorLogin": {
+            "type": "string"
+        },
+        "dbAdministratorLoginPassword": {
+            "type": "securestring"
+        }
+    },
+	"variables": {
+		"hostingPlanName": "[replace(resourceGroup().name,'.','')]",
+		"siteName": "[concat(toLower(variables('hostingPlanName')), uniqueString(resourceGroup().id))]",
+		"sku": "S2",
+		"siteConfig": {
+			"linuxFxVersion": "DOCKER|azureossd/appsreadynext-msi:01"
+			},
+        "size": 51200,
+	    "version": 5.7,
+        "database_name": "[concat(toLower(parameters('dbServerName')), uniqueString(resourceGroup().id))]"
+	},
+	"resources": [
+        {
+            "type": "Microsoft.DBforMySQL/servers",
+            "apiVersion": "2017-12-01-preview",
+            "kind": "",
+            "location": "[resourceGroup().location]",
+            "name": "[parameters('dbServerName')]",
+            "properties": {
+                "version": "[variables('version')]",
+                "administratorLogin": "[parameters('dbAdministratorLogin')]",
+                "administratorLoginPassword": "[parameters('dbAdministratorLoginPassword')]",
+                "storageProfile": {
+                    "storageMB": "[variables('size')]",
+                    "backupRetentionDays": 7,
+                    "geoRedundantBackup": "Disabled",
+                    "storageAutoGrow": "Enabled"
+                },
+                "previewFeature": "",
+                "infrastructureEncryption": "Disabled",
+                "sslEnforcement": "Disabled"
+            },
+            "sku": {
+                "name": "B_Gen5_2",
+                "tier": "Basic",
+                "capacity": 2,
+                "size": "[variables('size')]",
+                "family": "Gen5"
+            },
+            "resources": [
+                {
+                    "type": "firewallrules",
+                    "apiVersion": "2017-12-01",
+                    "name": "AllowAzureIPs",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.DBforMySQL/servers/databases', parameters('dbServerName'), variables('database_name'))]",
+                        "[resourceId('Microsoft.DBforMySQL/servers/',  parameters('dbServerName'))]"
+                    ],
+                    "properties": {
+                        "startIpAddress": "0.0.0.0",
+                        "endIpAddress": "255.255.255.255"
+                    }
+                },
+                {
+                    "type": "databases",
+                    "apiVersion": "2017-12-01",
+                    "name": "[variables('database_name')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.DBforMySQL/servers/',parameters('dbServerName'))]"
+                    ],
+                    "properties": {
+                        "charset": "utf8",
+                        "collation": "utf8_general_ci"
+                    }
+                }
+            ]
+        },
+		{
+			"apiVersion": "2020-06-01",
+			"name": "[variables('hostingPlanName')]",
+			"type": "Microsoft.Web/serverfarms",
+			"location": "[resourceGroup().location]",
+			"sku": {
+				"name": "[variables('sku')]"
+			},
+			"kind": "linux",
+			"properties": {
+				"reserved": true
+			}
+		},
+		{
+			"apiVersion": "2020-06-01",
+			"name": "[variables('siteName')]",
+			"type": "Microsoft.Web/sites",
+			"location": "[resourceGroup().location]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
+			],
+			"properties": {
+				"siteConfig": "[variables('siteConfig')]",
+				"serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
+			},
+			"resources": [
+                {
+                    "name": "appsettings",
+                    "type": "config",
+                    "apiVersion": "2020-06-01",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/Sites', variables('siteName'))]"
+                    ],
+                    "properties": {
+                        "DOCKER_REGISTRY_SERVER_URL":"https://index.docker.io",
+                        "KEY_VAULT_URL": "https://yourkeyvault.vault.azure.net",
+                        "SECRET_NAME": "your_secretname",
+                        "HOST": "[concat(toLower(parameters('dbServerName')), '.mysql.database.azure.com')]",
+                        "USER":"[concat(toLower(parameters('DbAdministratorLogin')), '@', parameters('dbServerName'))]",
+                        "DATABASE":"[variables('database_name')]",
+                        "CLIENT_ID":"your_userassigned_id",
+                        "WEBSITES_ENABLE_APP_SERVICE_STORAGE":"false"
+                    }
+                }
+			]
+		}
+	]
+}
