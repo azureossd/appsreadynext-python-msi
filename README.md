@@ -22,7 +22,7 @@
 5. Go to your KeyVault under **Access policies** and add an **Access Policy**.
 6. Select from template **Secret Management** and select just Secret Permissions **Get** and then Select principal and search by object id and add it.(Do not add Authorized Application, leave it as none selected) 
 7. Enable Application Logs and request the site.
-8. You will get the following exception: **EnvironmentCredential.get_token failed: EnvironmentCredential authentication unavailable. Environment variables are not fully configured*.
+8. You will get the following exception: *EnvironmentCredential.get_token failed: EnvironmentCredential authentication unavailable. Environment variables are not fully configured*.
 
 ## Not able to find Environment Credentials
 1. In order to fix this issue, you need to replace DefaultAzureCredential with ManagedIdentityCredential, this change is already made in **azureossd/appsreadynext-msi:02**, so go to Container Settings and pull from this image **azureossd/appsreadynext-msi:02**
