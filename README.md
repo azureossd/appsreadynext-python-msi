@@ -6,7 +6,7 @@
 
 - This template will create the following resources:
     - Azure Database for MySQL with Enforce SSL option disabled.
-    - Azure Web Apps for Containers.
+    - Azure Web Apps for Containers pulling from **azureossd/appsreadynext-msi:01**
 
 ## Requirements
 1. Create an **Azure KeyVault** resource.
