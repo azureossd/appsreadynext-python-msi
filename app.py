@@ -19,12 +19,11 @@ database = os.environ.get('DATABASE')
 user = os.environ.get('USER')
 keyvault_url = os.environ.get('KEY_VAULT_URL')
 secret_name = os.environ.get('SECRET_NAME')
-client_id = os.environ.get('CLIENT_ID')
 
 def Connect():
     try:
-        credential = DefaultAzureCredential(client_id=client_id)
-        #credential = ManagedIdentityCredential(client_id=client_id)
+        credential = DefaultAzureCredential()
+        #credential = ManagedIdentityCredential()
         secret_client = SecretClient(vault_url=keyvault_url, credential=credential)
         retrieved_secret = secret_client.get_secret(secret_name)
         password = retrieved_secret.value

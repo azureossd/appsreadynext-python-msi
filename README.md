@@ -6,13 +6,12 @@
 
 - This template will create the following resources:
     - Azure Database for MySQL with Enforce SSL option disabled.
-    - Azure Web Apps for Containers pulling from **azureossd/appsreadynext-msi:01**
+    - Azure Web Apps for Containers Python pulling from **azureossd/appsreadynext-msi:01**
 
 ## Requirements
 1. Create an **Azure KeyVault** resource.
 2. Create a **secret** for your KeyVault with your MySQL password.
-3. Create a **User Assigned Managed Identity**
-3. Go to Azure Web App under **Identity** and then select **User Assigned** and add your User Assigned Managed Identity, copy the CLIENT ID value for next step.
+3. Go to Azure Web App under **Identity** and then enable **System Assigned** and copy the Object ID value for next step.
 4. Create/Update the following App Settings for your web app.
 
  -  **KEY_VAULT_URL**=your_keyvault_url
@@ -20,9 +19,8 @@
  -  **HOST** = database_server
  -  **USER** = database_user
  -  **DATABASE** = database_name
- -  **CLIENT_ID**= your_userassigned_id
 5. Go to your KeyVault under **Access policies** and add an **Access Policy**.
-6. Select from template **Secret Management** and select just Secret Permissions **Get** and then Select principal and search by name or client id and add your user assigned msi.(Do not add Authorized Application, leave it as none selected) 
+6. Select from template **Secret Management** and select just Secret Permissions **Get** and then Select principal and search by object id and add it.(Do not add Authorized Application, leave it as none selected) 
 7. Request the site to reproduce the issue, check logs for more information.
 
 ## Not able to find Environment Credentials
